@@ -78,7 +78,7 @@ class Series(Mopic):
         pass
     
 
-class Film(Mopic):
+class Movie(Mopic):
     def __str__(self):
         return f'{self.title}, {self.release}'
     
