@@ -1,12 +1,26 @@
 import random
 import datetime # from datetime import datetime
+from faker import Faker
+from faker.providers import DynamicProvider
 
+fake = Faker()
+
+genres_provider = DynamicProvider(
+    provider_name="genre",
+    elements=['nudny', 'chwytający za serce', 'Netflix not-so-originial', 'jeden na milion', 'nie skończysz i tak', 'nawet nie zaczynaj']
+)
+
+fake = Faker()
+fake.add_provider(genres_provider)
+
+
+mopic_list = []
 class Mopic:
-    def __init__(self):
-        self.title = None
-        self.release = None
-        self.genre = None
-        self.views = 0
+    def __init__(self, title, release, genre, views):
+        self.title = title
+        self.release = release
+        self.genre = genre
+        self.views = views
     
     def __str__(self):
         return f'{self.title}'
@@ -18,6 +32,11 @@ class Mopic:
     
     def play(self):
         self.views + 1
+
+
+    def generate_views():
+        for i in range(random.randint(0, 100)):
+            mopic.play()
 
     
     @staticmethod
@@ -45,13 +64,6 @@ class Mopic:
                 return mopic
             else:
                 return 'NOT FOUND'
-
-
-    @staticmethod
-    def generate_views(mopic_list):
-        for mopic in mopic_list:
-            for i in range(random.randint(0, 100)):
-                mopic.play()
     
 
     @staticmethod
@@ -64,14 +76,24 @@ class Mopic:
 
 
 class Series(Mopic):
-    def __init__(self):
-        super().__init__()
-        self.no_season = None
-        self.no = None
+    def __init__(self, no_season, no_epizode, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._no_season = no_season
+        self._no_epizode = no_epizode
     
 
     def __str__(self):
-        return f'{self.title}, S{self.no_season}E{self.no}'
+        return f'{self.title}, S{self._no_season:02d}E{self._no_epizode:02d}'
+    
+
+    @property
+    def get_season_number(self):
+        return f"{self._no_season:02d}"
+    
+
+    @property
+    def get_epizode_number(self):
+        return f"{self._no_epizode:02d}"
     
 
     def generate():
@@ -86,15 +108,36 @@ class Movie(Mopic):
     def generate():
         pass
 
+def generate():
+    title = fake.name()
+    release = random.randint(1900, 2050)
+    genre = fake.genre()
+    views = random.randint(0, 50000)
+    no_season = random.randint(1, 99)
+    no_epizode = random.randint(1, 99)
+    return (title, release, genre, views, no_season, no_epizode)
+
 
 if __name__ == "__main__":
-    print('Mopic Library')
+    
     count_movies = random.randint(3, 6)
     count_series = random.randint(8, 12)
 
-    ##generate data
+    title, release, genre, views, no_season, no_epizode = generate()
 
+    for i in range(count_movies):
+        movie = Movie(title, release, genre, views, no_season)
+        mopic_list.append(movie)
+    for i in range(count_series):
+        series = Series(title, release, genre, views, no_season, no_epizode)
+        mopic_list.append(series)
+    for mopic in mopic_list:
+        mopic.generate_views()
+    print('Mopic Library')
     top_3 = Mopic.top_titles(mopic_list=mopic_list, count=3)
     dtnow = datetime.today().strftime('%Y-%m-%d')
+    print(f'Najpopularniejsze filmy i seriale z dnia {dtnow}:')
+    for top in top_3:
+        print(top)
     
 
