@@ -1,144 +1,105 @@
 import random
-import datetime # from datetime import datetime
-from faker import Faker
-from faker.providers import DynamicProvider
-
-fake = Faker()
-
-genres_provider = DynamicProvider(
-    provider_name="genre",
-    elements=['nudny', 'chwytający za serce', 'Netflix not-so-originial', 'jeden na milion', 'nie skończysz i tak', 'nawet nie zaczynaj']
-)
-
-fake = Faker()
-fake.add_provider(genres_provider)
+from datetime import datetime
 
 
-mopic_list = []
+class MopicLibrary:
+    def __init__(self):
+        self.library = []
+
+    def add_mopic(self, mopic):
+        self.library.append(mopic)
+
+    def generate_views(self):
+        for _ in range(10):
+            mopic = random.choice(self.library)
+            mopic.play()
+
+    def display_top_titles(self, count, content_type=None):
+        sorted_library = sorted(self.library, key=lambda mopic: mopic.views, reverse=True)
+        if content_type == 'movies':
+            movies = [m for m in sorted_library if isinstance(m, Movie)]
+            return movies[:count]
+        elif content_type == 'series':
+            series = [s for s in sorted_library if isinstance(s, Series)]
+            return series[:count]
+        else:
+            return sorted_library[:count]
+
+    def display_library(self):
+        for mopic in self.library:
+            print(mopic)
+
+    def display_available_episodes(self, series_title):
+        available_episodes = sum(1 for mopic in self.library if isinstance(mopic, Series) and mopic.title == series_title)
+        print(f"Available episodes of {series_title}: {available_episodes}")
+
+
 class Mopic:
-    def __init__(self, title, release, genre, views):
+    def __init__(self, title, year, genre):
         self.title = title
-        self.release = release
+        self.year = year
         self.genre = genre
-        self.views = views
-    
+        self.views = 0
+
+    def play(self):
+        self.views += 1
+
     def __str__(self):
         return f'{self.title}'
-
 
     def __repr__(self):
         return f'{self.title}'
 
-    
-    def play(self):
-        self.views + 1
-
-
-    def generate_views():
-        for i in range(random.randint(0, 100)):
-            mopic.play()
-
-    
-    @staticmethod
-    def getmovies(mopic_list):
-        movies = []
-        for mopic in mopic_list:
-            if isinstance(mopic, Movie):
-                movies.append(mopic)
-        return movies
-    
-
-    @staticmethod
-    def getseries(mopic_list):
-        series = []
-        for mopic in mopic_list:
-            if isinstance(mopic, Series):
-                series.append(mopic)
-        return series
-    
-
-    @staticmethod
-    def search(mopic_list, name):
-        for mopic in mopic_list:
-            if mopic.name == name:
-                return mopic
-            else:
-                return 'NOT FOUND'
-    
-
-    @staticmethod
-    def top_titles(mopic_list, count, content_type=None):
-        if content_type == 'M':
-            mopic_list = Mopic.getmovies(mopic_list)
-        elif content_type == 'S':
-            mopic_list = Mopic.getseries(mopic_list)
-        return mopic_list.sort(key=lambda mopic: mopic.views, reverse=True)[0:count]
-
 
 class Series(Mopic):
-    def __init__(self, no_season, no_epizode, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._no_season = no_season
-        self._no_epizode = no_epizode
-    
+    def __init__(self, title, year, genre, season, episode):
+        super().__init__(title, year, genre)
+        self.season = season
+        self.episode = episode
 
     def __str__(self):
-        return f'{self.title}, S{self._no_season:02d}E{self._no_epizode:02d}'
-    
+        return f'{self.title} S{self.season:02}E{self.episode:02}'
 
-    @property
-    def get_season_number(self):
-        return f"{self._no_season:02d}"
-    
-
-    @property
-    def get_epizode_number(self):
-        return f"{self._no_epizode:02d}"
-    
-
-    def generate():
-        pass
-    
 
 class Movie(Mopic):
+    def __init__(self, title, year, genre):
+        super().__init__(title, year, genre)
+
     def __str__(self):
-        return f'{self.title}, {self.release}'
-    
-
-    def generate():
-        pass
+        return f'{self.title} ({self.year})'
 
 
-def generate():
-    title = fake.name()
-    release = random.randint(1900, 2050)
-    genre = fake.genre()
-    views = random.randint(0, 50000)
-    no_season = random.randint(1, 99)
-    no_epizode = random.randint(1, 99)
-    return (title, release, genre, views, no_season, no_epizode)
+def generate_sample_library():
+    library = MopicLibrary()
+
+    for _ in range(5):
+        movie = Movie(f'Movie{_}', random.randint(1990, 2022), 'Action')
+        library.add_mopic(movie)
+
+    for _ in range(5):
+        series = Series(f'Series{_}', random.randint(1990, 2022), 'Drama', random.randint(1, 10), random.randint(1, 20))
+        library.add_mopic(series)
+
+    return library
 
 
 if __name__ == "__main__":
+    print('Biblioteka filmów')
     
-    count_movies = random.randint(3, 6)
-    count_series = random.randint(8, 12)
-
-    title, release, genre, views, no_season, no_epizode = generate()
-
-    for i in range(count_movies):
-        movie = Movie(title, release, genre, views, no_season)
-        mopic_list.append(movie)
-    for i in range(count_series):
-        series = Series(title, release, genre, views, no_season, no_epizode)
-        mopic_list.append(series)
-    for mopic in mopic_list:
-        mopic.generate_views()
-    print('Mopic Library')
-    top_3 = Mopic.top_titles(mopic_list=mopic_list, count=3)
-    dtnow = datetime.today().strftime('%Y-%m-%d')
-    print(f'Najpopularniejsze filmy i seriale z dnia {dtnow}:')
-    for top in top_3:
-        print(top)
+    mopic_library = generate_sample_library()
     
-
+    # Display the library
+    mopic_library.display_library()
+    
+    # Generate views
+    mopic_library.generate_views()
+    
+    # Display top titles
+    top_titles = mopic_library.display_top_titles(3)
+    print("\nTop 3 Titles:")
+    for title in top_titles:
+        print(title)
+    
+    # Display available episodes for a series
+    series_title_to_check = "Series0"
+    mopic_library.display_available_episodes(series_title_to_check)
