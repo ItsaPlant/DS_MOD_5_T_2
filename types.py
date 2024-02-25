@@ -17,10 +17,10 @@ class MopicLibrary:
     def display_top_titles(self, count, content_type=None):
         sorted_library = sorted(self.library, key=lambda mopic: mopic.views, reverse=True)
         if content_type == 'movies':
-            movies = [m for m in sorted_library if isinstance(m, Movie)]
+            movies = [mov for mov in sorted_library if isinstance(mov, Movie)]
             return movies[:count]
         elif content_type == 'series':
-            series = [s for s in sorted_library if isinstance(s, Series)]
+            series = [ser for ser in sorted_library if isinstance(ser, Series)]
             return series[:count]
         else:
             return sorted_library[:count]
@@ -72,12 +72,12 @@ class Movie(Mopic):
 def generate_sample_library():
     library = MopicLibrary()
 
-    for _ in range(5):
-        movie = Movie(f'Movie{_}', random.randint(1990, 2022), 'Action')
+    for n in range(5):
+        movie = Movie(f'Movie{n}', random.randint(1990, 2022), 'Action')
         library.add_mopic(movie)
 
-    for _ in range(5):
-        series = Series(f'Series{_}', random.randint(1990, 2022), 'Drama', random.randint(1, 10), random.randint(1, 20))
+    for n in range(5):
+        series = Series(f'Series{n}', random.randint(1990, 2022), 'Drama', random.randint(1, 10), random.randint(1, 20))
         library.add_mopic(series)
 
     return library
